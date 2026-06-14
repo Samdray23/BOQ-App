@@ -1,4 +1,5 @@
-import { lazy, Suspense } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import { lazy, Suspense, ReactNode } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { Loading } from '@/components/common/Loading';
 import RootLayout from '@/components/layouts/RootLayout';
@@ -10,7 +11,7 @@ const Login = lazy(() => import('@/pages/Login'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedRoute({ children }: { children: ReactNode }) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   if (!isAuthenticated) {
@@ -20,7 +21,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-function PublicRoute({ children }: { children: React.ReactNode }) {
+function PublicRoute({ children }: { children: ReactNode }) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   if (isAuthenticated) {

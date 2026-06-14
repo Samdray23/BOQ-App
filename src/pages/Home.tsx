@@ -34,37 +34,43 @@ export default function Home() {
   const techFeatures = [
     {
       title: 'React 19 & Vite',
-      description: 'Harness the power of React 19 rules, dynamic Suspense architectures, and ultra-fast Vite module reloading.',
+      description:
+        'Harness the power of React 19 rules, dynamic Suspense architectures, and ultra-fast Vite module reloading.',
       icon: Zap,
       color: 'text-amber-500 bg-amber-500/10',
     },
     {
       title: 'TypeScript & ESM',
-      description: 'Fully typed environments with path aliases, strict compilers, and native modern ES module definitions.',
+      description:
+        'Fully typed environments with path aliases, strict compilers, and native modern ES module definitions.',
       icon: Cpu,
       color: 'text-blue-500 bg-blue-500/10',
     },
     {
       title: 'Tailwind CSS v3',
-      description: 'Premium light/dark design theme structure with fluid layout variables and component borders.',
+      description:
+        'Premium light/dark design theme structure with fluid layout variables and component borders.',
       icon: Paintbrush,
       color: 'text-pink-500 bg-pink-500/10',
     },
     {
       title: 'TanStack React Query',
-      description: 'Scalable cache management, asynchronous mutation callbacks, and optimized browser synchronization.',
+      description:
+        'Scalable cache management, asynchronous mutation callbacks, and optimized browser synchronization.',
       icon: Layers,
       color: 'text-emerald-500 bg-emerald-500/10',
     },
     {
       title: 'Zustand & Persist',
-      description: 'State management storage layer persisting user profiles, theme toggles, and token keys.',
+      description:
+        'State management storage layer persisting user profiles, theme toggles, and token keys.',
       icon: Code2,
       color: 'text-indigo-500 bg-indigo-500/10',
     },
     {
       title: 'Husky & Linters',
-      description: 'Continuous code standards enforcement via lint-staged, ESLint flat configurations, and Prettier rules.',
+      description:
+        'Continuous code standards enforcement via lint-staged, ESLint flat configurations, and Prettier rules.',
       icon: ShieldCheck,
       color: 'text-violet-500 bg-violet-500/10',
     },
@@ -90,7 +96,8 @@ export default function Home() {
           </span>
         </h1>
         <p className="text-lg sm:text-xl text-muted-foreground font-light max-w-2xl mx-auto leading-relaxed">
-          An enterprise-ready stack pre-configured with React 19, TypeScript, Tailwind CSS, TanStack Query, Zustand, and ESLint.
+          An enterprise-ready stack pre-configured with React 19, TypeScript, Tailwind CSS, TanStack
+          Query, Zustand, and ESLint.
         </p>
         <div className="pt-6 flex flex-wrap justify-center gap-4">
           <Link to={isAuthenticated ? '/dashboard' : '/login'}>

@@ -21,12 +21,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
-      <Toaster 
-        theme={theme} 
-        closeButton 
-        richColors 
-        position="top-right"
-      />
+      <Toaster theme={theme} closeButton richColors position="top-right" />
     </QueryClientProvider>
   );
 }

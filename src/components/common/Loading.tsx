@@ -17,9 +17,7 @@ export function Loading({ className, size = 'md', fullScreen = false }: LoadingP
   const content = (
     <div className={cn('flex flex-col items-center justify-center gap-3', className)}>
       <Loader2 className={cn('animate-spin text-primary', sizeClasses[size])} />
-      <span className="text-sm font-medium text-muted-foreground animate-pulse">
-        Loading...
-      </span>
+      <span className="text-sm font-medium text-muted-foreground animate-pulse">Loading...</span>
     </div>
   );
 

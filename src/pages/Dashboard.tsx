@@ -21,7 +21,13 @@ interface UserData {
 export default function Dashboard() {
   const user = useAuthStore((state) => state.user);
 
-  const { data: users, isLoading, error, refetch, isRefetching } = useQuery<UserData[]>({
+  const {
+    data: users,
+    isLoading,
+    error,
+    refetch,
+    isRefetching,
+  } = useQuery<UserData[]>({
     queryKey: ['usersList'],
     queryFn: async () => {
       const response = await api.get('/users');
@@ -54,7 +60,8 @@ export default function Dashboard() {
         <div className="space-y-1">
           <h1 className="text-4xl font-extrabold tracking-tight">System Dashboard</h1>
           <p className="text-muted-foreground text-sm">
-            Logged in as <span className="font-semibold text-foreground">{user?.name}</span> ({user?.email})
+            Logged in as <span className="font-semibold text-foreground">{user?.name}</span> (
+            {user?.email})
           </p>
         </div>
         <Button
@@ -76,7 +83,8 @@ export default function Dashboard() {
           <div className="space-y-0.5">
             <CardTitle className="text-lg font-bold">Access Node Secured</CardTitle>
             <CardDescription className="text-xs">
-              Role credentials: <span className="font-semibold">{user?.role}</span>. Secure communication active.
+              Role credentials: <span className="font-semibold">{user?.role}</span>. Secure
+              communication active.
             </CardDescription>
           </div>
         </CardHeader>

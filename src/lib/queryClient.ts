@@ -6,8 +6,13 @@ export const queryClient = new QueryClient({
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
       gcTime: 1000 * 60 * 10, // 10 minutes
-      retry: (failureCount, error: any) => {
-        if (error?.response?.status === 401 || error?.response?.status === 403 || error?.response?.status === 404) {
+      retry: (failureCount, error: unknown) => {
+        const err = error as { response?: { status?: number } };
+        if (
+          err?.response?.status === 401 ||
+          err?.response?.status === 403 ||
+          err?.response?.status === 404
+        ) {
           return false;
         }
         return failureCount < 3;
@@ -15,8 +20,9 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
     },
     mutations: {
-      onError: (error: any) => {
-        const message = error?.response?.data?.message || error?.message || 'An error occurred';
+      onError: (error: unknown) => {
+        const err = error as { response?: { data?: { message?: string } }; message?: string };
+        const message = err?.response?.data?.message || err?.message || 'An error occurred';
         toast.error(message);
       },
     },
