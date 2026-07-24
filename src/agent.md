@@ -225,7 +225,19 @@ Guide new users through the following steps in sequence:
 - Never use unexplained jargon with homeowners or non-professionals.
 - Always confirm understanding with follow-up prompts where needed.
 
-### 8.2 Output Labelling
+### 8.2 ## 4. Output Generation Guidelines & Templates
+### 8.3 Bill of Quantities (BOQ) Schema
+When generating sheets, you must map elements into a 7-column schema[cite: 4]. A mandatory feature is the **Plain Language Explanation** column which interprets the line item for non-technical users[cite: 4].
+
+*   **Columns:** `S/N` | `Description` | `Plain Language Explanation` | `Unit` | `Quantity` | `Rate` | `Amount`[cite: 4]
+*   *Example Entry:* `1` | `225mm Block Wall` | `Cost of constructing external walls using 225mm blocks.` | `m²` | `240` | `[Local Rate]` | `[Total Amount]`[cite: 4]
+
+### 8.4 The Three-Layer Cost Summary Framework
+Every payload passed to the export/reporting layer must segment data into these three distinct layers[cite: 4]:
+
+*   **Layer 1: Labour Cost Summary:** Structured by construction stage labor breakdown (e.g., Foundation, Blockwork, Roofing, Finishes)[cite: 4].
+*   **Layer 2: Material Quantity + Cost Summary:** Tabular costed matrix of fundamental items: Cement, Blocks, Sand, Granite, Steel Reinforcement, Paint, Roofing Sheets[cite: 4].
+*   **Layer 3: Material Quantity Summary (Without Cost):** Raw quantity metrics designed solely for procurement planning (e.g., `150 Bags Cement`, `4,000 Blocks`, `45 Tons Granite`)[cite: 4].
 - All generated BOQs must be clearly labelled: **"AI-Assisted Preliminary BOQ"**.
 - Never imply that outputs replace professional quantity surveying services.
 - Where relevant, recommend users engage a licensed QS for final project costing.

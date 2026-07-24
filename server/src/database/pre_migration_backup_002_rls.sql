@@ -1,0 +1,436 @@
+-- Schema-only backup of pre-migration state
+-- Created: 2026-07-19T16:59:31.306Z
+-- Purpose: Rollback reference for 002_security_rls migration
+
+-- ============================================
+-- PRE-MIGRATION RLS STATUS
+-- ============================================
+-- audit_logs:rowsecurity=false,force=false
+-- boq_items:rowsecurity=false,force=false
+-- boq_sections:rowsecurity=false,force=false
+-- boqs:rowsecurity=false,force=false
+-- construction_stages:rowsecurity=false,force=false
+-- drawings:rowsecurity=false,force=false
+-- exports:rowsecurity=false,force=false
+-- jobs:rowsecurity=false,force=false
+-- material_schedule_items:rowsecurity=false,force=false
+-- material_schedules:rowsecurity=false,force=false
+-- notifications:rowsecurity=false,force=false
+-- onboarding_data:rowsecurity=false,force=false
+-- password_reset_tokens:rowsecurity=false,force=false
+-- payments:rowsecurity=false,force=false
+-- project_shares:rowsecurity=false,force=false
+-- projects:rowsecurity=false,force=false
+-- rate_categories:rowsecurity=false,force=false
+-- rate_library:rowsecurity=false,force=false
+-- regions:rowsecurity=false,force=false
+-- reports:rowsecurity=false,force=false
+-- subscriptions:rowsecurity=false,force=false
+-- team_members:rowsecurity=false,force=false
+-- teams:rowsecurity=false,force=false
+-- templates:rowsecurity=false,force=false
+-- users:rowsecurity=false,force=false
+-- verification_tokens:rowsecurity=false,force=false
+
+-- ============================================
+-- PRE-MIGRATION PRIVILEGES (anon, authenticated)
+-- ============================================
+-- anon: audit_logs → DELETE
+-- anon: audit_logs → INSERT
+-- anon: audit_logs → REFERENCES
+-- anon: audit_logs → SELECT
+-- anon: audit_logs → TRIGGER
+-- anon: audit_logs → TRUNCATE
+-- anon: audit_logs → UPDATE
+-- anon: boq_items → DELETE
+-- anon: boq_items → INSERT
+-- anon: boq_items → REFERENCES
+-- anon: boq_items → SELECT
+-- anon: boq_items → TRIGGER
+-- anon: boq_items → TRUNCATE
+-- anon: boq_items → UPDATE
+-- anon: boq_sections → DELETE
+-- anon: boq_sections → INSERT
+-- anon: boq_sections → REFERENCES
+-- anon: boq_sections → SELECT
+-- anon: boq_sections → TRIGGER
+-- anon: boq_sections → TRUNCATE
+-- anon: boq_sections → UPDATE
+-- anon: boqs → DELETE
+-- anon: boqs → INSERT
+-- anon: boqs → REFERENCES
+-- anon: boqs → SELECT
+-- anon: boqs → TRIGGER
+-- anon: boqs → TRUNCATE
+-- anon: boqs → UPDATE
+-- anon: construction_stages → DELETE
+-- anon: construction_stages → INSERT
+-- anon: construction_stages → REFERENCES
+-- anon: construction_stages → SELECT
+-- anon: construction_stages → TRIGGER
+-- anon: construction_stages → TRUNCATE
+-- anon: construction_stages → UPDATE
+-- anon: drawings → DELETE
+-- anon: drawings → INSERT
+-- anon: drawings → REFERENCES
+-- anon: drawings → SELECT
+-- anon: drawings → TRIGGER
+-- anon: drawings → TRUNCATE
+-- anon: drawings → UPDATE
+-- anon: exports → DELETE
+-- anon: exports → INSERT
+-- anon: exports → REFERENCES
+-- anon: exports → SELECT
+-- anon: exports → TRIGGER
+-- anon: exports → TRUNCATE
+-- anon: exports → UPDATE
+-- anon: jobs → DELETE
+-- anon: jobs → INSERT
+-- anon: jobs → REFERENCES
+-- anon: jobs → SELECT
+-- anon: jobs → TRIGGER
+-- anon: jobs → TRUNCATE
+-- anon: jobs → UPDATE
+-- anon: material_schedule_items → DELETE
+-- anon: material_schedule_items → INSERT
+-- anon: material_schedule_items → REFERENCES
+-- anon: material_schedule_items → SELECT
+-- anon: material_schedule_items → TRIGGER
+-- anon: material_schedule_items → TRUNCATE
+-- anon: material_schedule_items → UPDATE
+-- anon: material_schedules → DELETE
+-- anon: material_schedules → INSERT
+-- anon: material_schedules → REFERENCES
+-- anon: material_schedules → SELECT
+-- anon: material_schedules → TRIGGER
+-- anon: material_schedules → TRUNCATE
+-- anon: material_schedules → UPDATE
+-- anon: notifications → DELETE
+-- anon: notifications → INSERT
+-- anon: notifications → REFERENCES
+-- anon: notifications → SELECT
+-- anon: notifications → TRIGGER
+-- anon: notifications → TRUNCATE
+-- anon: notifications → UPDATE
+-- anon: onboarding_data → DELETE
+-- anon: onboarding_data → INSERT
+-- anon: onboarding_data → REFERENCES
+-- anon: onboarding_data → SELECT
+-- anon: onboarding_data → TRIGGER
+-- anon: onboarding_data → TRUNCATE
+-- anon: onboarding_data → UPDATE
+-- anon: password_reset_tokens → DELETE
+-- anon: password_reset_tokens → INSERT
+-- anon: password_reset_tokens → REFERENCES
+-- anon: password_reset_tokens → SELECT
+-- anon: password_reset_tokens → TRIGGER
+-- anon: password_reset_tokens → TRUNCATE
+-- anon: password_reset_tokens → UPDATE
+-- anon: payments → DELETE
+-- anon: payments → INSERT
+-- anon: payments → REFERENCES
+-- anon: payments → SELECT
+-- anon: payments → TRIGGER
+-- anon: payments → TRUNCATE
+-- anon: payments → UPDATE
+-- anon: project_shares → DELETE
+-- anon: project_shares → INSERT
+-- anon: project_shares → REFERENCES
+-- anon: project_shares → SELECT
+-- anon: project_shares → TRIGGER
+-- anon: project_shares → TRUNCATE
+-- anon: project_shares → UPDATE
+-- anon: projects → DELETE
+-- anon: projects → INSERT
+-- anon: projects → REFERENCES
+-- anon: projects → SELECT
+-- anon: projects → TRIGGER
+-- anon: projects → TRUNCATE
+-- anon: projects → UPDATE
+-- anon: rate_categories → DELETE
+-- anon: rate_categories → INSERT
+-- anon: rate_categories → REFERENCES
+-- anon: rate_categories → SELECT
+-- anon: rate_categories → TRIGGER
+-- anon: rate_categories → TRUNCATE
+-- anon: rate_categories → UPDATE
+-- anon: rate_library → DELETE
+-- anon: rate_library → INSERT
+-- anon: rate_library → REFERENCES
+-- anon: rate_library → SELECT
+-- anon: rate_library → TRIGGER
+-- anon: rate_library → TRUNCATE
+-- anon: rate_library → UPDATE
+-- anon: regions → DELETE
+-- anon: regions → INSERT
+-- anon: regions → REFERENCES
+-- anon: regions → SELECT
+-- anon: regions → TRIGGER
+-- anon: regions → TRUNCATE
+-- anon: regions → UPDATE
+-- anon: reports → DELETE
+-- anon: reports → INSERT
+-- anon: reports → REFERENCES
+-- anon: reports → SELECT
+-- anon: reports → TRIGGER
+-- anon: reports → TRUNCATE
+-- anon: reports → UPDATE
+-- anon: subscriptions → DELETE
+-- anon: subscriptions → INSERT
+-- anon: subscriptions → REFERENCES
+-- anon: subscriptions → SELECT
+-- anon: subscriptions → TRIGGER
+-- anon: subscriptions → TRUNCATE
+-- anon: subscriptions → UPDATE
+-- anon: team_members → DELETE
+-- anon: team_members → INSERT
+-- anon: team_members → REFERENCES
+-- anon: team_members → SELECT
+-- anon: team_members → TRIGGER
+-- anon: team_members → TRUNCATE
+-- anon: team_members → UPDATE
+-- anon: teams → DELETE
+-- anon: teams → INSERT
+-- anon: teams → REFERENCES
+-- anon: teams → SELECT
+-- anon: teams → TRIGGER
+-- anon: teams → TRUNCATE
+-- anon: teams → UPDATE
+-- anon: templates → DELETE
+-- anon: templates → INSERT
+-- anon: templates → REFERENCES
+-- anon: templates → SELECT
+-- anon: templates → TRIGGER
+-- anon: templates → TRUNCATE
+-- anon: templates → UPDATE
+-- anon: users → DELETE
+-- anon: users → INSERT
+-- anon: users → REFERENCES
+-- anon: users → SELECT
+-- anon: users → TRIGGER
+-- anon: users → TRUNCATE
+-- anon: users → UPDATE
+-- anon: verification_tokens → DELETE
+-- anon: verification_tokens → INSERT
+-- anon: verification_tokens → REFERENCES
+-- anon: verification_tokens → SELECT
+-- anon: verification_tokens → TRIGGER
+-- anon: verification_tokens → TRUNCATE
+-- anon: verification_tokens → UPDATE
+-- authenticated: audit_logs → DELETE
+-- authenticated: audit_logs → INSERT
+-- authenticated: audit_logs → REFERENCES
+-- authenticated: audit_logs → SELECT
+-- authenticated: audit_logs → TRIGGER
+-- authenticated: audit_logs → TRUNCATE
+-- authenticated: audit_logs → UPDATE
+-- authenticated: boq_items → DELETE
+-- authenticated: boq_items → INSERT
+-- authenticated: boq_items → REFERENCES
+-- authenticated: boq_items → SELECT
+-- authenticated: boq_items → TRIGGER
+-- authenticated: boq_items → TRUNCATE
+-- authenticated: boq_items → UPDATE
+-- authenticated: boq_sections → DELETE
+-- authenticated: boq_sections → INSERT
+-- authenticated: boq_sections → REFERENCES
+-- authenticated: boq_sections → SELECT
+-- authenticated: boq_sections → TRIGGER
+-- authenticated: boq_sections → TRUNCATE
+-- authenticated: boq_sections → UPDATE
+-- authenticated: boqs → DELETE
+-- authenticated: boqs → INSERT
+-- authenticated: boqs → REFERENCES
+-- authenticated: boqs → SELECT
+-- authenticated: boqs → TRIGGER
+-- authenticated: boqs → TRUNCATE
+-- authenticated: boqs → UPDATE
+-- authenticated: construction_stages → DELETE
+-- authenticated: construction_stages → INSERT
+-- authenticated: construction_stages → REFERENCES
+-- authenticated: construction_stages → SELECT
+-- authenticated: construction_stages → TRIGGER
+-- authenticated: construction_stages → TRUNCATE
+-- authenticated: construction_stages → UPDATE
+-- authenticated: drawings → DELETE
+-- authenticated: drawings → INSERT
+-- authenticated: drawings → REFERENCES
+-- authenticated: drawings → SELECT
+-- authenticated: drawings → TRIGGER
+-- authenticated: drawings → TRUNCATE
+-- authenticated: drawings → UPDATE
+-- authenticated: exports → DELETE
+-- authenticated: exports → INSERT
+-- authenticated: exports → REFERENCES
+-- authenticated: exports → SELECT
+-- authenticated: exports → TRIGGER
+-- authenticated: exports → TRUNCATE
+-- authenticated: exports → UPDATE
+-- authenticated: jobs → DELETE
+-- authenticated: jobs → INSERT
+-- authenticated: jobs → REFERENCES
+-- authenticated: jobs → SELECT
+-- authenticated: jobs → TRIGGER
+-- authenticated: jobs → TRUNCATE
+-- authenticated: jobs → UPDATE
+-- authenticated: material_schedule_items → DELETE
+-- authenticated: material_schedule_items → INSERT
+-- authenticated: material_schedule_items → REFERENCES
+-- authenticated: material_schedule_items → SELECT
+-- authenticated: material_schedule_items → TRIGGER
+-- authenticated: material_schedule_items → TRUNCATE
+-- authenticated: material_schedule_items → UPDATE
+-- authenticated: material_schedules → DELETE
+-- authenticated: material_schedules → INSERT
+-- authenticated: material_schedules → REFERENCES
+-- authenticated: material_schedules → SELECT
+-- authenticated: material_schedules → TRIGGER
+-- authenticated: material_schedules → TRUNCATE
+-- authenticated: material_schedules → UPDATE
+-- authenticated: notifications → DELETE
+-- authenticated: notifications → INSERT
+-- authenticated: notifications → REFERENCES
+-- authenticated: notifications → SELECT
+-- authenticated: notifications → TRIGGER
+-- authenticated: notifications → TRUNCATE
+-- authenticated: notifications → UPDATE
+-- authenticated: onboarding_data → DELETE
+-- authenticated: onboarding_data → INSERT
+-- authenticated: onboarding_data → REFERENCES
+-- authenticated: onboarding_data → SELECT
+-- authenticated: onboarding_data → TRIGGER
+-- authenticated: onboarding_data → TRUNCATE
+-- authenticated: onboarding_data → UPDATE
+-- authenticated: password_reset_tokens → DELETE
+-- authenticated: password_reset_tokens → INSERT
+-- authenticated: password_reset_tokens → REFERENCES
+-- authenticated: password_reset_tokens → SELECT
+-- authenticated: password_reset_tokens → TRIGGER
+-- authenticated: password_reset_tokens → TRUNCATE
+-- authenticated: password_reset_tokens → UPDATE
+-- authenticated: payments → DELETE
+-- authenticated: payments → INSERT
+-- authenticated: payments → REFERENCES
+-- authenticated: payments → SELECT
+-- authenticated: payments → TRIGGER
+-- authenticated: payments → TRUNCATE
+-- authenticated: payments → UPDATE
+-- authenticated: project_shares → DELETE
+-- authenticated: project_shares → INSERT
+-- authenticated: project_shares → REFERENCES
+-- authenticated: project_shares → SELECT
+-- authenticated: project_shares → TRIGGER
+-- authenticated: project_shares → TRUNCATE
+-- authenticated: project_shares → UPDATE
+-- authenticated: projects → DELETE
+-- authenticated: projects → INSERT
+-- authenticated: projects → REFERENCES
+-- authenticated: projects → SELECT
+-- authenticated: projects → TRIGGER
+-- authenticated: projects → TRUNCATE
+-- authenticated: projects → UPDATE
+-- authenticated: rate_categories → DELETE
+-- authenticated: rate_categories → INSERT
+-- authenticated: rate_categories → REFERENCES
+-- authenticated: rate_categories → SELECT
+-- authenticated: rate_categories → TRIGGER
+-- authenticated: rate_categories → TRUNCATE
+-- authenticated: rate_categories → UPDATE
+-- authenticated: rate_library → DELETE
+-- authenticated: rate_library → INSERT
+-- authenticated: rate_library → REFERENCES
+-- authenticated: rate_library → SELECT
+-- authenticated: rate_library → TRIGGER
+-- authenticated: rate_library → TRUNCATE
+-- authenticated: rate_library → UPDATE
+-- authenticated: regions → DELETE
+-- authenticated: regions → INSERT
+-- authenticated: regions → REFERENCES
+-- authenticated: regions → SELECT
+-- authenticated: regions → TRIGGER
+-- authenticated: regions → TRUNCATE
+-- authenticated: regions → UPDATE
+-- authenticated: reports → DELETE
+-- authenticated: reports → INSERT
+-- authenticated: reports → REFERENCES
+-- authenticated: reports → SELECT
+-- authenticated: reports → TRIGGER
+-- authenticated: reports → TRUNCATE
+-- authenticated: reports → UPDATE
+-- authenticated: subscriptions → DELETE
+-- authenticated: subscriptions → INSERT
+-- authenticated: subscriptions → REFERENCES
+-- authenticated: subscriptions → SELECT
+-- authenticated: subscriptions → TRIGGER
+-- authenticated: subscriptions → TRUNCATE
+-- authenticated: subscriptions → UPDATE
+-- authenticated: team_members → DELETE
+-- authenticated: team_members → INSERT
+-- authenticated: team_members → REFERENCES
+-- authenticated: team_members → SELECT
+-- authenticated: team_members → TRIGGER
+-- authenticated: team_members → TRUNCATE
+-- authenticated: team_members → UPDATE
+-- authenticated: teams → DELETE
+-- authenticated: teams → INSERT
+-- authenticated: teams → REFERENCES
+-- authenticated: teams → SELECT
+-- authenticated: teams → TRIGGER
+-- authenticated: teams → TRUNCATE
+-- authenticated: teams → UPDATE
+-- authenticated: templates → DELETE
+-- authenticated: templates → INSERT
+-- authenticated: templates → REFERENCES
+-- authenticated: templates → SELECT
+-- authenticated: templates → TRIGGER
+-- authenticated: templates → TRUNCATE
+-- authenticated: templates → UPDATE
+-- authenticated: users → DELETE
+-- authenticated: users → INSERT
+-- authenticated: users → REFERENCES
+-- authenticated: users → SELECT
+-- authenticated: users → TRIGGER
+-- authenticated: users → TRUNCATE
+-- authenticated: users → UPDATE
+-- authenticated: verification_tokens → DELETE
+-- authenticated: verification_tokens → INSERT
+-- authenticated: verification_tokens → REFERENCES
+-- authenticated: verification_tokens → SELECT
+-- authenticated: verification_tokens → TRIGGER
+-- authenticated: verification_tokens → TRUNCATE
+-- authenticated: verification_tokens → UPDATE
+
+-- ============================================
+-- PRE-MIGRATION POLICIES
+-- ============================================
+-- No existing policies found
+
+-- ============================================
+-- PRE-MIGRATION TABLE LIST
+-- ============================================
+-- audit_logs
+-- boq_items
+-- boq_sections
+-- boqs
+-- construction_stages
+-- drawings
+-- exports
+-- jobs
+-- material_schedule_items
+-- material_schedules
+-- notifications
+-- onboarding_data
+-- password_reset_tokens
+-- payments
+-- project_shares
+-- projects
+-- rate_categories
+-- rate_library
+-- regions
+-- reports
+-- subscriptions
+-- team_members
+-- teams
+-- templates
+-- users
+-- verification_tokens

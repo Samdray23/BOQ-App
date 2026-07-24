@@ -1,5 +1,5 @@
 import { Loader2 } from 'lucide-react';
-import { cn } from '@/utils/cn';
+import { cn } from '@/lib/cn';
 
 interface LoadingProps {
   className?: string;
@@ -16,14 +16,16 @@ export function Loading({ className, size = 'md', fullScreen = false }: LoadingP
 
   const content = (
     <div className={cn('flex flex-col items-center justify-center gap-3', className)}>
-      <Loader2 className={cn('animate-spin text-primary', sizeClasses[size])} />
-      <span className="text-sm font-medium text-muted-foreground animate-pulse">Loading...</span>
+      <Loader2 className={cn('animate-spin text-[var(--sys-primary)]', sizeClasses[size])} />
+      <span className="text-sm font-medium text-[var(--sys-on-surface-variant)] animate-pulse">
+        Loading...
+      </span>
     </div>
   );
 
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--sys-surface)]/80 backdrop-blur-sm">
         {content}
       </div>
     );
