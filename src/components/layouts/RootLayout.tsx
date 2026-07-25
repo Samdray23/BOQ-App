@@ -449,33 +449,6 @@ export default function RootLayout() {
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <Outlet />
         </main>
-
-        {!isAuthenticated && (
-          <footer className="border-t border-[var(--sys-outline)] bg-[var(--sys-surface)] py-8 px-4 sm:px-24">
-            <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <img src="/logo.png" alt="BOQ" className="h-8 w-8" />
-                <span className="text-sm font-semibold text-[var(--sys-primary)]">BOQ AI</span>
-              </div>
-              <p className="text-xs text-[var(--sys-on-surface-variant)]">
-                &copy; {new Date().getFullYear()} BOQ AI. All rights reserved.
-              </p>
-              <div className="flex items-center gap-4 text-xs text-[var(--sys-on-surface-variant)]">
-                <button onClick={() => navigate('/')} className="hover:text-[var(--sys-primary)] transition-colors">
-                  Home
-                </button>
-                <span className="text-[var(--sys-outline)]">|</span>
-                <button onClick={() => navigate('/')} className="hover:text-[var(--sys-primary)] transition-colors">
-                  About
-                </button>
-                <span className="text-[var(--sys-outline)]">|</span>
-                <button onClick={() => navigate('/')} className="hover:text-[var(--sys-primary)] transition-colors">
-                  Contact
-                </button>
-              </div>
-            </div>
-          </footer>
-        )}
       </div>
 
       {logoutModalOpen && (
