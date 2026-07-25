@@ -8,7 +8,7 @@ export default function Home() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return (
-    <div className="flex flex-col items-center h-screen justify-center">
+    <div className="flex flex-col items-center min-h-[calc(100vh-4rem)] justify-center py-16">
       <motion.section
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
