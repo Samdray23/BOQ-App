@@ -30,7 +30,7 @@ export default function VerifyEmail() {
           login(data.user, data.token);
           const completed = data.onboardingCompleted ?? true;
           setOnboardingCompleted(completed);
-          useOnboardingStore.setState({ completed, loading: false });
+          useOnboardingStore.setState((s) => ({ data: { ...s.data, completed } }));
           // Automatically navigate after 3 seconds
           setTimeout(() => {
             navigate(completed ? '/dashboard' : '/onboarding', { replace: true });

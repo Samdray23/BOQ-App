@@ -10,7 +10,6 @@ import {
   Users,
   CreditCard,
   Bell,
-  ShieldCheck,
   FileText,
   Layers,
   Palette,
@@ -61,7 +60,6 @@ export const navigation: NavSection[] = [
       { icon: Settings, label: 'Settings', path: '/settings' },
       { icon: CreditCard, label: 'Subscription', path: '/subscription' },
       { icon: Bell, label: 'Notifications', path: '/notifications' },
-      { icon: ShieldCheck, label: 'Admin', path: '/admin' },
     ],
   },
 ];

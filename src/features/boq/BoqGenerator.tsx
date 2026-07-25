@@ -135,7 +135,7 @@ function EditableCell({
   );
 }
 
-export function BoqGenerator() {
+export default function BoqGenerator() {
   const { projects } = useProjectStore();
   const { boqs, currentBoq, setCurrentBoq, createBoq, updateItem, addItem, recalculate } =
     useBoqStore();

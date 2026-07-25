@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { Card, Button, EmptyState } from '@/components/shared';
-import { Plus, Trash2, FileSpreadsheet, FileText, GripVertical, Ruler } from 'lucide-react';
+import { Plus, Trash2, FileSpreadsheet, FileText, GripVertical, Ruler, Lock } from 'lucide-react';
+import { useProjectStore } from '@/store/useProjectStore';
+import { useBoqStore } from '@/store/useBoqStore';
+import { useSubscriptionStore } from '@/store/useSubscriptionStore';
 
 interface DimensionRow {
   id: string;
@@ -38,69 +41,6 @@ function createSection(name: string): SheetSection {
   return { id: crypto.randomUUID(), name, rows: [createRow()] };
 }
 
-const defaultSections: SheetSection[] = [
-  {
-    id: 'sec-1',
-    name: 'Excavation',
-    rows: [
-      {
-        id: 'r1',
-        description: 'Strip foundation excavation (600mm wide × 900mm deep)',
-        length: 120,
-        width: 0.6,
-        height: 0.9,
-        unit: 'm³',
-        calculationNotes: 'Perimeter 120m, strip width 600mm, depth 900mm',
-      },
-    ],
-  },
-  {
-    id: 'sec-2',
-    name: 'Concrete Work',
-    rows: [
-      {
-        id: 'r2',
-        description: 'Ground floor slab (150mm thick)',
-        length: 200,
-        width: 150,
-        height: 0.15,
-        unit: 'm³',
-        calculationNotes: 'Slab area 200m², thickness 150mm',
-      },
-    ],
-  },
-  {
-    id: 'sec-3',
-    name: 'Blockwork',
-    rows: [
-      {
-        id: 'r3',
-        description: 'External wall blockwork (225mm hollow blocks)',
-        length: 85,
-        width: 3.2,
-        height: 1,
-        unit: 'm²',
-        calculationNotes: 'Wall length 85m, height 3.2m',
-      },
-    ],
-  },
-  {
-    id: 'sec-4',
-    name: 'Plastering',
-    rows: [
-      {
-        id: 'r4',
-        description: 'Internal wall plastering (12mm thick)',
-        length: 75,
-        width: 3.2,
-        height: 1,
-        unit: 'm²',
-        calculationNotes: 'Wall length 75m, height 3.2m, both faces',
-      },
-    ],
-  },
-];
-
 function calcQuantity(row: DimensionRow): number {
   return row.length * row.width * row.height;
 }
@@ -109,9 +49,56 @@ function getUnitLabel(unit: string): string {
   return unit;
 }
 
-export function MeasurementSheets() {
-  const [sheetName, setSheetName] = useState('Measurement Sheet - Luxury Villa Ikoyi');
-  const [sections, setSections] = useState<SheetSection[]>(defaultSections);
+export default function MeasurementSheets() {
+  const { projects } = useProjectStore();
+  const { boqs } = useBoqStore();
+  const { plan } = useSubscriptionStore();
+
+  const [selectedProjectId, setSelectedProjectId] = useState<string>('');
+  const [sheetName, setSheetName] = useState('Measurement Sheet');
+  const [sections, setSections] = useState<SheetSection[]>([]);
+
+  const selectedProject = useMemo(
+    () => projects.find((p) => p.id === selectedProjectId) || null,
+    [projects, selectedProjectId]
+  );
+
+  const projectBoq = useMemo(
+    () => (selectedProjectId ? boqs.find((b) => b.projectId === selectedProjectId) || null : null),
+    [boqs, selectedProjectId]
+  );
+
+  useEffect(() => {
+    if (!selectedProject) {
+      setSheetName('Measurement Sheet');
+      setSections([]);
+      return;
+    }
+    setSheetName(`Measurement Sheet - ${selectedProject.name}`);
+  }, [selectedProject]);
+
+  useEffect(() => {
+    if (!projectBoq) {
+      setSections([]);
+      return;
+    }
+    const derived: SheetSection[] = projectBoq.sections.map((sec) => ({
+      id: sec.id,
+      name: sec.sectionName,
+      rows: projectBoq.items
+        .filter((item) => item.sectionId === sec.id)
+        .map((item) => ({
+          id: item.id,
+          description: item.description,
+          length: 0,
+          width: 0,
+          height: 0,
+          unit: item.unit,
+          calculationNotes: item.plainLanguageNote,
+        })),
+    }));
+    setSections(derived.length > 0 ? derived : []);
+  }, [projectBoq]);
 
   const addSection = () => {
     setSections((prev) => [...prev, createSection(`Section ${prev.length + 1}`)]);
@@ -153,6 +140,8 @@ export function MeasurementSheets() {
     return sections.reduce((sum, s) => sum + getSectionTotal(s.rows), 0);
   };
 
+  const canExport = plan.canExportExcel;
+
   return (
     <div className="space-y-6 p-6">
       <motion.div
@@ -168,14 +157,54 @@ export function MeasurementSheets() {
             className="text-sm text-[var(--sys-on-surface-variant)] bg-transparent border-none outline-none focus:underline underline-offset-2 px-0 py-0 w-auto max-w-md"
           />
         </div>
-        <Button onClick={() => toast.success('New measurement sheet created (demo)')}>
-          <Plus className="size-4" />
-          New Sheet
-        </Button>
+        <div className="flex items-center gap-3">
+          <select
+            value={selectedProjectId}
+            onChange={(e) => setSelectedProjectId(e.target.value)}
+            className="rounded-[var(--sys-corner-sm)] border border-[var(--sys-outline)] bg-[var(--sys-surface)] px-3 py-2 text-sm text-[var(--sys-on-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sys-primary)]/50 transition-colors"
+          >
+            <option value="">Select project...</option>
+            {projects.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+          <Button onClick={() => toast.success('New measurement sheet created (demo)')}>
+            <Plus className="size-4" />
+            New Sheet
+          </Button>
+        </div>
       </motion.div>
 
       <AnimatePresence mode="wait">
-        {sections.length === 0 && sections.every((s) => s.rows.length === 0) ? (
+        {!selectedProject ? (
+          <motion.div
+            key="no-project"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <EmptyState
+              icon={<Ruler className="size-12" />}
+              title="Select a project to view measurement sheets"
+              description="Choose a project from the dropdown above to get started."
+            />
+          </motion.div>
+        ) : !projectBoq ? (
+          <motion.div
+            key="no-boq"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <EmptyState
+              icon={<FileText className="size-12" />}
+              title="Generate a BOQ first to create measurement sheets"
+              description="This project does not have a BOQ yet. Generate one to populate measurement sections."
+            />
+          </motion.div>
+        ) : sections.length === 0 ? (
           <motion.div
             key="empty"
             initial={{ opacity: 0 }}
@@ -404,9 +433,19 @@ export function MeasurementSheets() {
             <div className="flex gap-3 justify-end pt-2">
               <Button
                 variant="outline"
-                onClick={() => toast.success('Measurement sheet exported to Excel (demo)')}
+                onClick={() => {
+                  if (!canExport) {
+                    toast.error('Upgrade to Professional to export measurement sheets');
+                    return;
+                  }
+                  toast.success('Measurement sheet exported to Excel (demo)');
+                }}
               >
-                <FileSpreadsheet className="size-4" />
+                {canExport ? (
+                  <FileSpreadsheet className="size-4" />
+                ) : (
+                  <Lock className="size-4" />
+                )}
                 Export to Excel
               </Button>
               <Button onClick={() => toast.success('Measurement sent to BOQ generator (demo)')}>

@@ -105,7 +105,7 @@ function NotificationItem({
   );
 }
 
-export function Notifications() {
+export default function Notifications() {
   const { notifications, unreadCount, markRead, markAllRead } = useNotificationStore();
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
 

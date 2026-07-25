@@ -38,86 +38,11 @@ function createRateItem(description: string, unit: string): RateItem {
     itemDescription: description,
     unit,
     materials: [{ description: '', rate: 0, quantity: 1 }],
-    labour: [
-      { role: 'Foreman', count: 1, rate: 5000 },
-      { role: 'Craftsmen', count: 3, rate: 3500 },
-      { role: 'Labourers', count: 5, rate: 2500 },
-    ],
+    labour: [],
     equipment: [{ description: '', hours: 1, rate: 0 }],
-    profitMargin: 15,
+    profitMargin: 0,
   };
 }
-
-const initialRateItems: RateItem[] = [
-  {
-    id: 'ra1',
-    itemDescription: 'Concrete (1:2:4) - Grade C25',
-    unit: 'm³',
-    materials: [
-      { description: 'Cement (OPC) 50kg bags', rate: 5500, quantity: 8 },
-      { description: 'Sharp Sand', rate: 4200, quantity: 0.5 },
-      { description: 'Granite (¾")', rate: 8500, quantity: 0.9 },
-      { description: 'Water', rate: 500, quantity: 0.15 },
-    ],
-    labour: [
-      { role: 'Foreman', count: 1, rate: 5000 },
-      { role: 'Craftsmen', count: 3, rate: 3500 },
-      { role: 'Labourers', count: 6, rate: 2500 },
-    ],
-    equipment: [
-      { description: 'Concrete Mixer (1 bag)', hours: 2, rate: 8000 },
-      { description: 'Vibrator', hours: 1.5, rate: 3000 },
-    ],
-    profitMargin: 15,
-  },
-  {
-    id: 'ra2',
-    itemDescription: 'Blockwork (225mm Hollow Blocks)',
-    unit: 'm²',
-    materials: [
-      { description: 'Hollow Blocks (225mm)', rate: 350, quantity: 12.5 },
-      { description: 'Cement Mortar (1:4)', rate: 5500, quantity: 0.3 },
-    ],
-    labour: [
-      { role: 'Foreman', count: 1, rate: 5000 },
-      { role: 'Craftsmen', count: 2, rate: 3500 },
-      { role: 'Labourers', count: 3, rate: 2500 },
-    ],
-    equipment: [],
-    profitMargin: 15,
-  },
-  {
-    id: 'ra3',
-    itemDescription: 'Internal Plastering (12mm thick)',
-    unit: 'm²',
-    materials: [{ description: 'Cement Mortar (1:4)', rate: 5500, quantity: 0.15 }],
-    labour: [
-      { role: 'Foreman', count: 1, rate: 5000 },
-      { role: 'Craftsmen', count: 2, rate: 3500 },
-      { role: 'Labourers', count: 2, rate: 2500 },
-    ],
-    equipment: [],
-    profitMargin: 12,
-  },
-  {
-    id: 'ra4',
-    itemDescription: 'Ceramic Floor Tiling (600×600mm)',
-    unit: 'm²',
-    materials: [
-      { description: 'Ceramic Tiles (600×600mm)', rate: 4200, quantity: 1.08 },
-      { description: 'Cement Sand Screed', rate: 5500, quantity: 0.1 },
-      { description: 'Tile Adhesive (25kg)', rate: 3200, quantity: 0.3 },
-      { description: 'Grout', rate: 1800, quantity: 0.1 },
-    ],
-    labour: [
-      { role: 'Foreman', count: 1, rate: 5000 },
-      { role: 'Craftsmen', count: 2, rate: 3500 },
-      { role: 'Labourers', count: 2, rate: 2500 },
-    ],
-    equipment: [{ description: 'Tile Cutter', hours: 2, rate: 1500 }],
-    profitMargin: 15,
-  },
-];
 
 function calcMaterialTotal(m: MaterialCost) {
   return m.rate * m.quantity;
@@ -142,8 +67,8 @@ function formatNgn(amount: number) {
   return `₦${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-export function RateAnalysis() {
-  const [items, setItems] = useState<RateItem[]>(initialRateItems);
+export default function RateAnalysis() {
+  const [items, setItems] = useState<RateItem[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const toggleExpand = (id: string) => {
@@ -151,7 +76,7 @@ export function RateAnalysis() {
   };
 
   const addItem = () => {
-    const newItem = createRateItem('New Work Item', 'm²');
+    const newItem = createRateItem('', 'm²');
     setItems((prev) => [...prev, newItem]);
     setExpandedId(newItem.id);
   };
@@ -215,6 +140,24 @@ export function RateAnalysis() {
     );
   };
 
+  const addLabour = (itemId: string) => {
+    setItems((prev) =>
+      prev.map((i) =>
+        i.id === itemId
+          ? { ...i, labour: [...i.labour, { role: '', count: 1, rate: 0 }] }
+          : i
+      )
+    );
+  };
+
+  const removeLabour = (itemId: string, idx: number) => {
+    setItems((prev) =>
+      prev.map((i) =>
+        i.id === itemId ? { ...i, labour: i.labour.filter((_, j) => j !== idx) } : i
+      )
+    );
+  };
+
   const removeMaterial = (itemId: string, idx: number) => {
     setItems((prev) =>
       prev.map((i) =>
@@ -269,8 +212,8 @@ export function RateAnalysis() {
           >
             <EmptyState
               icon={<Calculator className="size-12" />}
-              title="No rate items"
-              description="Add rate analysis items to build up unit rates."
+              title="No rate analysis yet"
+              description="Create your first rate analysis to build up unit rates for construction work items."
               action={<Button onClick={addItem}>Add Rate Item</Button>}
             />
           </motion.div>
@@ -470,9 +413,16 @@ export function RateAnalysis() {
                                 <div className="space-y-2">
                                   {item.labour.map((lab, li) => (
                                     <div key={li} className="flex items-center gap-2">
-                                      <span className="w-20 text-xs text-[var(--sys-on-surface)]">
-                                        {lab.role}
-                                      </span>
+                                      <input
+                                        value={lab.role}
+                                        onChange={(e) =>
+                                          updateLabour(item.id, li, {
+                                            role: e.target.value,
+                                          })
+                                        }
+                                        placeholder="Role"
+                                        className="w-20 h-8 rounded-[var(--sys-corner-sm)] border border-[var(--sys-outline)] bg-[var(--sys-surface)] px-2 py-1 text-xs text-[var(--sys-on-surface)] placeholder:text-[var(--sys-on-surface-variant)]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sys-primary)]/50 transition-colors"
+                                      />
                                       <input
                                         type="number"
                                         value={lab.count || ''}
@@ -502,8 +452,24 @@ export function RateAnalysis() {
                                       <span className="text-xs font-medium text-[var(--sys-on-surface)] w-16 text-right">
                                         {formatNgn(calcLabourTotal(lab))}
                                       </span>
+                                      {item.labour.length > 1 && (
+                                        <button
+                                          onClick={() => removeLabour(item.id, li)}
+                                          className="text-[var(--sys-on-surface-variant)] hover:text-[var(--sys-error)] transition-colors"
+                                        >
+                                          <Trash2 className="size-3" />
+                                        </button>
+                                      )}
                                     </div>
                                   ))}
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => addLabour(item.id)}
+                                  >
+                                    <Plus className="size-3" />
+                                    Add Labour
+                                  </Button>
                                 </div>
                               </div>
 

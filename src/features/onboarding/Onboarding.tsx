@@ -73,7 +73,7 @@ const slideVariants = {
   exit: (d: number) => ({ x: d > 0 ? -300 : 300, opacity: 0 }),
 };
 
-export function Onboarding() {
+export default function Onboarding() {
   const navigate = useNavigate();
   const {
     data,

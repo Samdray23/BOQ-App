@@ -9,15 +9,14 @@ import {
 } from '@/components/shared';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useProjectStore } from '@/store/useProjectStore';
-import { useOnboardingStore } from '@/store/useOnboardingStore';
+import { useBoqStore } from '@/store/useBoqStore';
 import { cn } from '@/lib/cn';
 import {
   FolderKanban,
   FileText,
-  Users,
   DollarSign,
-  TrendingUp,
-  TrendingDown,
+  CheckCircle2,
+  Clock,
   Sparkles,
   Send,
   Eye,
@@ -39,13 +38,6 @@ const statusBadge: Record<
   archived: { variant: 'default', label: 'Archived' },
 };
 
-const kpiIcons = {
-  projects: FolderKanban,
-  boqs: FileText,
-  members: Users,
-  value: DollarSign,
-};
-
 function getGreeting() {
   const h = new Date().getHours();
   if (h < 12) return 'Good morning';
@@ -53,53 +45,50 @@ function getGreeting() {
   return 'Good evening';
 }
 
-export function Dashboard() {
+function formatCurrency(value: number): string {
+  if (value >= 1_000_000_000) return `₦${(value / 1_000_000_000).toFixed(1)}B`;
+  if (value >= 1_000_000) return `₦${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `₦${(value / 1_000).toFixed(1)}K`;
+  return `₦${value.toLocaleString()}`;
+}
+
+export default function Dashboard() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const { projects } = useProjectStore();
-  const onboarding = useOnboardingStore((s) => s.data);
+  const { boqs } = useBoqStore();
   const [aiQuery, setAiQuery] = useState('');
 
   const activeProjects = projects.filter(
-    (p) => p.status !== 'archived' && p.status !== 'complete'
+    (p) => p.status === 'processing' || p.status === 'draft'
   ).length;
-  const totalBoqs = projects.length;
-  const totalValue = projects.length * 45200000;
-  const prevValue = (projects.length - 1) * 45200000;
-  const valueChange = prevValue > 0 ? ((totalValue - prevValue) / prevValue) * 100 : 0;
+  const completedProjects = projects.filter((p) => p.status === 'complete').length;
+  const totalBoqValue = boqs.reduce((sum, b) => sum + b.totalEstimatedCost, 0);
 
   const kpis = [
     {
-      key: 'projects',
+      key: 'total',
+      label: 'Total Projects',
+      value: projects.length,
+      icon: FolderKanban,
+    },
+    {
+      key: 'active',
       label: 'Active Projects',
       value: activeProjects,
-      change: 12.5,
-      trend: 'up' as const,
-      icon: kpiIcons.projects,
+      icon: Clock,
     },
     {
-      key: 'boqs',
-      label: 'Total BOQs',
-      value: totalBoqs,
-      change: 8.3,
-      trend: 'up' as const,
-      icon: kpiIcons.boqs,
-    },
-    {
-      key: 'members',
-      label: 'Team Members',
-      value: 6,
-      change: 0,
-      trend: 'neutral' as const,
-      icon: kpiIcons.members,
+      key: 'completed',
+      label: 'Completed',
+      value: completedProjects,
+      icon: CheckCircle2,
     },
     {
       key: 'value',
-      label: 'Total Value',
-      value: `₦${(totalValue / 1000000).toFixed(1)}M`,
-      change: valueChange,
-      trend: valueChange >= 0 ? ('up' as const) : ('down' as const),
-      icon: kpiIcons.value,
+      label: 'Total BOQ Value',
+      value: formatCurrency(totalBoqValue),
+      icon: DollarSign,
     },
   ];
 
@@ -117,16 +106,14 @@ export function Dashboard() {
       >
         <div className="space-y-1">
           <h1 className="text-2xl font-bold text-[var(--sys-on-surface)]">
-            {getGreeting()}, {user?.name || onboarding.firstName || 'there'}
+            {getGreeting()}, {user?.name || 'there'}
           </h1>
           <p className="text-sm text-[var(--sys-on-surface-variant)]">
             Here&apos;s what&apos;s happening with your projects today.
           </p>
         </div>
         <Badge variant="info" className="capitalize">
-          {user?.role?.replace(/_/g, ' ') ||
-            onboarding.role?.replace(/_/g, ' ') ||
-            'Quantity Surveyor'}
+          {user?.role?.replace(/_/g, ' ') || 'Quantity Surveyor'}
         </Badge>
       </motion.div>
 
@@ -146,22 +133,6 @@ export function Dashboard() {
                     <div className="rounded-lg bg-[var(--sys-primary)]/10 p-2.5 text-[var(--sys-primary)]">
                       <Icon className="size-5" />
                     </div>
-                    {kpi.trend !== 'neutral' && (
-                      <span
-                        className={cn(
-                          'inline-flex items-center gap-0.5 text-xs font-medium',
-                          kpi.trend === 'up' ? 'text-green-600' : 'text-red-500'
-                        )}
-                      >
-                        {kpi.trend === 'up' ? (
-                          <TrendingUp className="size-3.5" />
-                        ) : (
-                          <TrendingDown className="size-3.5" />
-                        )}
-                        {kpi.change > 0 ? '+' : ''}
-                        {kpi.change}%
-                      </span>
-                    )}
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-[var(--sys-on-surface)]">{kpi.value}</p>

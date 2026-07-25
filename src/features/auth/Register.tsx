@@ -74,7 +74,7 @@ export default function Register() {
     setLoading(true);
 
     setTimeout(() => {
-      login({ id: '1', name: name.trim(), email: email.trim(), role }, 'mock_jwt_token');
+      login({ id: crypto.randomUUID(), name: name.trim(), email: email.trim(), role }, crypto.randomUUID());
       setLoading(false);
       toast.success('Account created successfully');
       navigate('/onboarding');
@@ -98,7 +98,7 @@ export default function Register() {
               id="name"
               type="text"
               label="Full Name"
-              placeholder="Chidi Okonkwo"
+              placeholder="John Doe"
               icon={<User className="h-4 w-4" />}
               value={name}
               onChange={(e) => setName(e.target.value)}

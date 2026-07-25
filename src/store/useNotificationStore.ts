@@ -16,25 +16,8 @@ interface NotificationState {
 }
 
 export const useNotificationStore = create<NotificationState>((set) => ({
-  notifications: [
-    {
-      id: 'n1',
-      title: 'BOQ Generated',
-      message: 'Luxury Villa BOQ is ready',
-      type: 'success',
-      read: false,
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: 'n2',
-      title: 'New Team Member',
-      message: 'Chidi joined Greenfield Estate',
-      type: 'info',
-      read: false,
-      createdAt: new Date(Date.now() - 3600000).toISOString(),
-    },
-  ],
-  unreadCount: 2,
+  notifications: [],
+  unreadCount: 0,
   addNotification: (n) =>
     set((s) => {
       const newN = {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import {
@@ -23,6 +23,7 @@ import {
   Select,
   EmptyState,
 } from '@/components/shared';
+import { useProjectStore } from '@/store/useProjectStore';
 
 type Role = 'Owner' | 'Admin' | 'Member';
 
@@ -41,80 +42,6 @@ interface ActivityItem {
   action: string;
   timestamp: Date;
 }
-
-const mockMembers: TeamMember[] = [
-  {
-    id: '1',
-    name: 'Chidi Okonkwo',
-    email: 'chidi.okonkwo@example.com',
-    role: 'Owner',
-    joinedAt: new Date('2024-01-15'),
-    avatar: 'CO',
-  },
-  {
-    id: '2',
-    name: 'Amara Eze',
-    email: 'amara.eze@example.com',
-    role: 'Admin',
-    joinedAt: new Date('2024-03-01'),
-    avatar: 'AE',
-  },
-  {
-    id: '3',
-    name: 'Femi Adeyemi',
-    email: 'femi.adeyemi@example.com',
-    role: 'Member',
-    joinedAt: new Date('2024-06-10'),
-    avatar: 'FA',
-  },
-  {
-    id: '4',
-    name: 'Zainab Bello',
-    email: 'zainab.bello@example.com',
-    role: 'Member',
-    joinedAt: new Date('2024-08-22'),
-    avatar: 'ZB',
-  },
-];
-
-const mockActivities: ActivityItem[] = [
-  {
-    id: 'a1',
-    user: 'Chidi',
-    action: 'generated BOQ for Luxury Villa',
-    timestamp: new Date(Date.now() - 1000 * 60 * 30),
-  },
-  {
-    id: 'a2',
-    user: 'Amara',
-    action: 'updated material schedule',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-  },
-  {
-    id: 'a3',
-    user: 'Femi',
-    action: 'added cost estimate for foundation works',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5),
-  },
-  {
-    id: 'a4',
-    user: 'Chidi',
-    action: 'reviewed BOQ for School Project',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 8),
-  },
-  {
-    id: 'a5',
-    user: 'Zainab',
-    action: 'exported project report',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24),
-  },
-  {
-    id: 'a6',
-    user: 'Amara',
-    action: 'invited Femi Adeyemi to the team',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48),
-  },
-];
 
 const roleVariants: Record<Role, 'default' | 'secondary' | 'outline'> = {
   Owner: 'default',
@@ -142,6 +69,15 @@ function formatJoinDate(date: Date): string {
     month: 'short',
     year: 'numeric',
   });
+}
+
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
 }
 
 function Avatar({ initials }: { initials: string }) {
@@ -209,11 +145,17 @@ const roleOptions = [
 ];
 
 export default function Collaboration() {
-  const [members, setMembers] = useState<TeamMember[]>(mockMembers);
-  const [activities] = useState<ActivityItem[]>(mockActivities);
+  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [activities] = useState<ActivityItem[]>([]);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<'Admin' | 'Member'>('Member');
+
+  const projects = useProjectStore((s) => s.projects);
+  const activeProjects = useMemo(
+    () => projects.filter((p) => p.status === 'processing' || p.status === 'draft').length,
+    [projects],
+  );
 
   const handleRoleChange = (memberId: string, newRole: Role) => {
     setMembers((prev) => prev.map((m) => (m.id === memberId ? { ...m, role: newRole } : m)));
@@ -229,6 +171,17 @@ export default function Collaboration() {
       toast.error('Please enter a valid email address');
       return;
     }
+
+    const newMember: TeamMember = {
+      id: crypto.randomUUID(),
+      name: inviteEmail.split('@')[0],
+      email: inviteEmail,
+      role: inviteRole,
+      joinedAt: new Date(),
+      avatar: getInitials(inviteEmail.split('@')[0]),
+    };
+    setMembers((prev) => [...prev, newMember]);
+
     toast.success(`Invitation sent to ${inviteEmail}`);
     setShowInviteDialog(false);
     setInviteEmail('');
@@ -254,7 +207,7 @@ export default function Collaboration() {
 
       <div className="mb-8 grid gap-4 sm:grid-cols-3">
         <StatCard icon={<Users size={24} />} label="Total Members" value={members.length} />
-        <StatCard icon={<Building2 size={24} />} label="Active Projects" value={8} />
+        <StatCard icon={<Building2 size={24} />} label="Active Projects" value={activeProjects} />
         <StatCard icon={<Activity size={24} />} label="Recent Activity" value={activities.length} />
       </div>
 
@@ -273,8 +226,14 @@ export default function Collaboration() {
             {members.length === 0 ? (
               <EmptyState
                 icon={<Users size={24} />}
-                title="No team members"
+                title="No team members yet"
                 description="Invite members to collaborate on projects"
+                action={
+                  <Button onClick={() => setShowInviteDialog(true)}>
+                    <UserPlus size={16} />
+                    Invite Member
+                  </Button>
+                }
               />
             ) : (
               <div className="space-y-1">
@@ -358,7 +317,7 @@ export default function Collaboration() {
             {activities.length === 0 ? (
               <EmptyState
                 icon={<Activity size={24} />}
-                title="No recent activity"
+                title="No activity yet"
                 description="Team activities will appear here"
               />
             ) : (

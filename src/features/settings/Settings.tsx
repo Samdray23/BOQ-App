@@ -121,7 +121,8 @@ function ProfileTab() {
 }
 
 function WorkspaceTab() {
-  const [companyName, setCompanyName] = useState('BuildRight Ltd');
+  const user = useAuthStore((s) => s.user);
+  const [companyName, setCompanyName] = useState(user?.name || '');
   const [currency, setCurrency] = useState('NGN');
   const [location, setLocation] = useState('Lagos');
   const [standard, setStandard] = useState('PMM');
@@ -302,7 +303,7 @@ function BillingTab() {
   );
 }
 
-export function Settings() {
+export default function Settings() {
   const [activeTab, setActiveTab] = useState('profile');
 
   return (

@@ -65,7 +65,7 @@ function formatDate(d: string) {
   return date.toLocaleDateString('en-NG', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-export function Projects() {
+export default function Projects() {
   const navigate = useNavigate();
   const { projects, addProject } = useProjectStore();
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'all'>('all');

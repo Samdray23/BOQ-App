@@ -37,8 +37,6 @@ const authLinks = [
 export default function RootLayout() {
   const { user, isAuthenticated, logout } = useAuthStore();
   const { unreadCount, notifications, markRead } = useNotificationStore();
-  const fetchOnboarding = useOnboardingStore((s) => s.fetchOnboarding);
-  const onboardingCompleted = useOnboardingStore((s) => s.completed);
   const resetOnboarding = useOnboardingStore((s) => s.reset);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -51,12 +49,6 @@ export default function RootLayout() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
-
-  useEffect(() => {
-    if (isAuthenticated && onboardingCompleted !== true && location.pathname !== '/onboarding') {
-      fetchOnboarding();
-    }
-  }, [isAuthenticated, fetchOnboarding, onboardingCompleted, location.pathname]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {

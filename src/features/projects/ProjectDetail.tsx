@@ -48,7 +48,7 @@ function formatDate(d: string) {
   });
 }
 
-export function ProjectDetail() {
+export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { projects, archiveProject, duplicateProject } = useProjectStore();

@@ -14,14 +14,16 @@ import {
 } from '@/components/shared';
 
 import { useProjectStore } from '@/store/useProjectStore';
+import { useBoqStore } from '@/store/useBoqStore';
 import { useSubscriptionStore } from '@/store/useSubscriptionStore';
-import { Plus, FileText, Download, Eye, X, FileBarChart, Calendar, FileSpreadsheet } from 'lucide-react';
+import { Plus, FileText, Download, Eye, X, FileBarChart, Calendar } from 'lucide-react';
 
 type ReportType = 'boq' | 'cost_estimate' | 'material_schedule';
 type ReportStatus = 'generating' | 'complete' | 'error';
 
 interface Report {
   id: string;
+  projectId: string;
   projectName: string;
   type: ReportType;
   generatedDate: string;
@@ -40,37 +42,6 @@ const statusBadge: Record<ReportStatus, { variant: 'info' | 'success' | 'error';
     complete: { variant: 'success', label: 'Complete' },
     error: { variant: 'error', label: 'Error' },
   };
-
-const mockReports: Report[] = [
-  {
-    id: 'r1',
-    projectName: 'Luxury Villa Ikoyi',
-    type: 'boq',
-    generatedDate: '2026-06-10',
-    status: 'complete',
-  },
-  {
-    id: 'r2',
-    projectName: 'Greenfield Estate Phase 2',
-    type: 'cost_estimate',
-    generatedDate: '2026-06-12',
-    status: 'complete',
-  },
-  {
-    id: 'r3',
-    projectName: 'Hilltop Residence',
-    type: 'material_schedule',
-    generatedDate: '2026-06-13',
-    status: 'generating',
-  },
-  {
-    id: 'r4',
-    projectName: 'Luxury Villa Ikoyi',
-    type: 'boq',
-    generatedDate: '2026-06-14',
-    status: 'error',
-  },
-];
 
 const generateReportTypes = [
   { value: 'boq_summary', label: 'BOQ Summary' },
@@ -96,15 +67,22 @@ function formatDate(d: string) {
   });
 }
 
-export function Reports() {
+export default function Reports() {
   const { projects } = useProjectStore();
+  const { boqs } = useBoqStore();
   const { canExport, canExportExcel, canExportCleanPdf, shouldWatermark } = useSubscriptionStore();
-  const [reports] = useState<Report[]>(mockReports);
+
+  const [reports, setReports] = useState<Report[]>([]);
+  const [selectedProjectId, setSelectedProjectId] = useState('');
   const [showDialog, setShowDialog] = useState(false);
-  const [form, setForm] = useState({ projectId: '', reportType: 'boq_summary', format: 'pdf' });
+  const [form, setForm] = useState({ reportType: 'boq_summary', format: 'pdf' });
+
+  const selectedProject = projects.find((p) => p.id === selectedProjectId) ?? null;
+  const projectReports = reports.filter((r) => r.projectId === selectedProjectId);
+  const projectBoq = boqs.find((b) => b.projectId === selectedProjectId);
 
   const handleGenerate = () => {
-    if (!form.projectId) {
+    if (!selectedProjectId) {
       toast.error('Please select a project');
       return;
     }
@@ -116,11 +94,44 @@ export function Reports() {
       toast.error('PDF export is available on Professional and Enterprise plans');
       return;
     }
+
+    const typeMap: Record<string, ReportType> = {
+      boq_summary: 'boq',
+      cost_breakdown: 'cost_estimate',
+      material_schedule: 'material_schedule',
+      full_report: 'boq',
+    };
+
+    const reportType = typeMap[form.reportType] ?? 'boq';
+
+    if (!projectBoq && reportType === 'boq') {
+      toast.error('No BOQ found for this project. Generate a BOQ first.');
+      setShowDialog(false);
+      return;
+    }
+
+    const newReport: Report = {
+      id: crypto.randomUUID(),
+      projectId: selectedProjectId,
+      projectName: selectedProject!.name,
+      type: reportType,
+      generatedDate: new Date().toISOString().split('T')[0],
+      status: 'generating',
+    };
+
+    setReports((prev) => [newReport, ...prev]);
     toast.success(
       shouldWatermark() ? 'Generating watermarked report...' : 'Report generation started...'
     );
+
+    setTimeout(() => {
+      setReports((prev) =>
+        prev.map((r) => (r.id === newReport.id ? { ...r, status: 'complete' as ReportStatus } : r))
+      );
+    }, 2000);
+
     setShowDialog(false);
-    setForm({ projectId: '', reportType: 'boq_summary', format: 'pdf' });
+    setForm({ reportType: 'boq_summary', format: 'pdf' });
   };
 
   return (
@@ -137,8 +148,30 @@ export function Reports() {
         </Button>
       </motion.div>
 
+      <Select
+        label="Project"
+        id="project-filter"
+        value={selectedProjectId}
+        onChange={(e) => setSelectedProjectId(e.target.value)}
+        options={projects.map((p) => ({ value: p.id, label: p.name }))}
+        placeholder="Select a project"
+      />
+
       <AnimatePresence mode="wait">
-        {reports.length === 0 ? (
+        {!selectedProjectId ? (
+          <motion.div
+            key="select"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <EmptyState
+              icon={<FileBarChart className="size-12" />}
+              title="Select a project to view reports"
+              description="Choose a project from the dropdown above to see its reports."
+            />
+          </motion.div>
+        ) : projectReports.length === 0 ? (
           <motion.div
             key="empty"
             initial={{ opacity: 0 }}
@@ -160,7 +193,7 @@ export function Reports() {
             exit={{ opacity: 0 }}
             className="grid grid-cols-1 md:grid-cols-2 gap-4"
           >
-            {reports.map((report, i) => (
+            {projectReports.map((report, i) => (
               <motion.div
                 key={report.id}
                 initial={{ opacity: 0, y: 16 }}
@@ -232,7 +265,7 @@ export function Reports() {
               className="fixed inset-0 bg-black/40 z-40"
               onClick={() => {
                 setShowDialog(false);
-                setForm({ projectId: '', reportType: 'boq_summary', format: 'pdf' });
+                setForm({ reportType: 'boq_summary', format: 'pdf' });
               }}
             />
             <motion.div
@@ -249,21 +282,29 @@ export function Reports() {
                     size="icon"
                     onClick={() => {
                       setShowDialog(false);
-                      setForm({ projectId: '', reportType: 'boq_summary', format: 'pdf' });
+                      setForm({ reportType: 'boq_summary', format: 'pdf' });
                     }}
                   >
                     <X className="size-4" />
                   </Button>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Select
-                    label="Project"
-                    id="project"
-                    value={form.projectId}
-                    onChange={(e) => setForm({ ...form, projectId: e.target.value })}
-                    options={projects.map((p) => ({ value: p.id, label: p.name }))}
-                    placeholder="Select a project"
-                  />
+                  {selectedProject && (
+                    <div className="rounded-lg border border-[var(--sys-outline-variant)] bg-[var(--sys-surface-variant)] p-3 text-sm text-[var(--sys-on-surface)]">
+                      {selectedProject.name}
+                    </div>
+                  )}
+                  {selectedProject && projectBoq && (
+                    <p className="text-xs text-[var(--sys-on-surface-variant)]">
+                      BOQ available: {projectBoq.title} (v{projectBoq.version}) —{' '}
+                      {projectBoq.items.length} items
+                    </p>
+                  )}
+                  {selectedProject && !projectBoq && (
+                    <p className="text-xs text-[var(--sys-error)]">
+                      No BOQ generated yet. Create a BOQ for this project first.
+                    </p>
+                  )}
                   <Select
                     label="Report Type"
                     id="reportType"
@@ -283,7 +324,7 @@ export function Reports() {
                       variant="outline"
                       onClick={() => {
                         setShowDialog(false);
-                        setForm({ projectId: '', reportType: 'boq_summary', format: 'pdf' });
+                        setForm({ reportType: 'boq_summary', format: 'pdf' });
                       }}
                     >
                       Cancel

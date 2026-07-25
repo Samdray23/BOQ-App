@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { Card, CardContent, Button, Badge } from '@/components/shared';
 import { useSubscriptionStore } from '@/store/useSubscriptionStore';
 import { cn } from '@/lib/cn';
-import { Check, X, Crown, CreditCard, Download } from 'lucide-react';
+import { Check, X, Crown, CreditCard } from 'lucide-react';
 
 interface PlanConfig {
   id: 'free' | 'professional' | 'enterprise';
@@ -77,23 +77,6 @@ const plans: PlanConfig[] = [
     ],
   },
 ];
-
-const paymentMethods = [
-  { id: '1', type: 'Card', last4: '4242', expiry: '12/27', brand: 'Visa' },
-  { id: '2', type: 'Bank Transfer', last4: '0123', expiry: '—', brand: 'GTBank' },
-];
-
-const invoices = [
-  { id: 'INV-001', date: '01 Jun 2026', amount: '₦15,000', status: 'Paid' as const },
-  { id: 'INV-002', date: '01 May 2026', amount: '₦15,000', status: 'Paid' as const },
-  { id: 'INV-003', date: '01 Apr 2026', amount: '₦15,000', status: 'Paid' as const },
-  { id: 'INV-004', date: '01 Mar 2026', amount: '₦15,000', status: 'Pending' as const },
-];
-
-const statusBadge: Record<string, 'success' | 'warning'> = {
-  Paid: 'success',
-  Pending: 'warning',
-};
 
 function PlanCard({
   plan,
@@ -193,7 +176,7 @@ function PlanCard({
   );
 }
 
-export function Subscription() {
+export default function Subscription() {
   const { plan: currentPlan, billingCycle, setBillingCycle } = useSubscriptionStore();
   const [tab, setTab] = useState<'plans' | 'payment' | 'invoices'>('plans');
 
@@ -284,30 +267,11 @@ export function Subscription() {
       {tab === 'payment' && (
         <div className="space-y-4">
           <p className="text-sm text-[var(--sys-on-surface-variant)]">Saved payment methods</p>
-          {paymentMethods.length === 0 ? (
-            <p className="text-sm text-[var(--sys-on-surface-variant)]">
-              No payment methods saved.
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {paymentMethods.map((pm) => (
-                <Card key={pm.id} padding="lg" className="flex items-center gap-4">
-                  <div className="rounded-lg bg-[var(--sys-primary)]/10 p-2.5 text-[var(--sys-primary)]">
-                    <CreditCard className="size-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-[var(--sys-on-surface)]">
-                      {pm.brand} •••• {pm.last4}
-                    </p>
-                    <p className="text-xs text-[var(--sys-on-surface-variant)]">
-                      Expires {pm.expiry}
-                    </p>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
-          <Button variant="outline">
+          <p className="text-sm text-[var(--sys-on-surface-variant)]">No payment methods yet.</p>
+          <Button
+            variant="outline"
+            onClick={() => toast.info('Payment integration coming soon')}
+          >
             <CreditCard className="size-4" />
             Add Payment Method
           </Button>
@@ -316,59 +280,7 @@ export function Subscription() {
 
       {tab === 'invoices' && (
         <div className="space-y-4">
-          {invoices.length === 0 ? (
-            <p className="text-sm text-[var(--sys-on-surface-variant)]">No invoices yet.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-[var(--sys-outline)]">
-                    <th className="text-left py-3 px-2 font-medium text-[var(--sys-on-surface-variant)]">
-                      Invoice
-                    </th>
-                    <th className="text-left py-3 px-2 font-medium text-[var(--sys-on-surface-variant)]">
-                      Date
-                    </th>
-                    <th className="text-left py-3 px-2 font-medium text-[var(--sys-on-surface-variant)]">
-                      Amount
-                    </th>
-                    <th className="text-left py-3 px-2 font-medium text-[var(--sys-on-surface-variant)]">
-                      Status
-                    </th>
-                    <th className="text-right py-3 px-2 font-medium text-[var(--sys-on-surface-variant)]">
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {invoices.map((inv) => (
-                    <tr
-                      key={inv.id}
-                      className="border-b border-[var(--sys-outline)]/50 hover:bg-[var(--sys-surface-container)]/50 transition-colors"
-                    >
-                      <td className="py-3 px-2 font-medium text-[var(--sys-on-surface)]">
-                        {inv.id}
-                      </td>
-                      <td className="py-3 px-2 text-[var(--sys-on-surface-variant)]">{inv.date}</td>
-                      <td className="py-3 px-2 text-[var(--sys-on-surface)]">{inv.amount}</td>
-                      <td className="py-3 px-2">
-                        <Badge variant={statusBadge[inv.status]}>{inv.status}</Badge>
-                      </td>
-                      <td className="py-3 px-2 text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toast.success('Invoice download coming soon')}
-                        >
-                          <Download className="size-4" />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <p className="text-sm text-[var(--sys-on-surface-variant)]">No invoices yet.</p>
         </div>
       )}
     </div>

@@ -26,7 +26,6 @@ const Collaboration = lazy(() => import('@/features/collaboration/Collaboration'
 const Settings = lazy(() => import('@/features/settings/Settings'));
 const Subscription = lazy(() => import('@/features/subscriptions/Subscription'));
 const Notifications = lazy(() => import('@/features/notifications/Notifications'));
-const Admin = lazy(() => import('@/features/admin/Admin'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -105,14 +104,6 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'projects/:id',
-        element: (
-          <ProtectedRoute>
-            <LazyPage Component={ProjectDetail} />
-          </ProtectedRoute>
-        ),
-      },
-      {
         path: 'projects/boq',
         element: (
           <ProtectedRoute>
@@ -161,6 +152,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: 'projects/:id',
+        element: (
+          <ProtectedRoute>
+            <LazyPage Component={ProjectDetail} />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: 'ai-assistant',
         element: (
           <ProtectedRoute>
@@ -205,14 +204,6 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <LazyPage Component={Notifications} />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'admin',
-        element: (
-          <ProtectedRoute>
-            <LazyPage Component={Admin} />
           </ProtectedRoute>
         ),
       },

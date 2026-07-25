@@ -19,32 +19,14 @@ interface Conversation {
   messages: Message[];
 }
 
-const mockConversations: Conversation[] = [
-  {
-    id: '1',
-    title: 'Generate BOQ for Villa',
-    updatedAt: new Date(Date.now() - 1000 * 60 * 15),
-    messages: [],
-  },
-  {
-    id: '2',
-    title: 'Material rates in Lagos',
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
-    messages: [],
-  },
-  {
-    id: '3',
-    title: 'Compare foundation costs',
-    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
-    messages: [],
-  },
-];
+const AI_RESPONSE_PLACEHOLDER =
+  "I'm your AI estimation assistant. I can help with BOQ generation, cost estimation, material analysis, and rate analysis. Please note that this is a demo environment — connect a real AI backend for live responses.";
 
 const suggestions = [
-  'Generate BOQ for residential building',
-  'Compare material prices in Lagos vs Abuja',
-  'Calculate concrete quantities',
-  'Create rate analysis for plastering',
+  'Generate BOQ for a residential building',
+  'Compare material prices across regions',
+  'Calculate concrete quantities for a slab',
+  'Create a rate analysis for plastering work',
 ];
 
 const welcomeMessage: Message = {
@@ -75,25 +57,6 @@ function formatDate(date: Date): string {
   if (days < 7) return `${days}d ago`;
   return date.toLocaleDateString('en-NG', { day: 'numeric', month: 'short' });
 }
-
-const mockAiResponse = async (userMessage: string): Promise<string> => {
-  const responses: Record<string, string> = {
-    'Generate BOQ for residential building':
-      "I'll generate a comprehensive BOQ for a residential building. Let me prepare the standard sections:\n\n**1. Substructure**\n- Excavation\n- Foundation concrete\n- Block work to DPC\n\n**2. Superstructure**\n- Columns and beams\n- Slabs\n- Staircase\n\n**3. Finishes**\n- Floor finishes\n- Wall finishes\n- Ceiling\n\n**4. Services**\n- Electrical\n- Plumbing\n- Drainage\n\nWould you like me to proceed with quantities based on a specific floor area?",
-    'Compare material prices in Lagos vs Abuja':
-      'Here\'s a price comparison for key construction materials:\n\n| Material | Lagos (₦) | Abuja (₦) |\n|----------|-----------|-----------|\n| Cement (50kg) | 5,200 | 5,800 |\n| 19mm Granite/ton | 8,500 | 10,200 |\n| Sharp Sand/ton | 3,800 | 4,500 |\n| 12mm Reinforcement/ton | 750,000 | 820,000 |\n| 9" Hollow Blocks | 350 | 420 |\n\nPrices in Lagos are generally 8-15% lower due to proximity to ports and manufacturing hubs.',
-    'Calculate concrete quantities':
-      'For concrete quantity calculation, I need:\n\n**Input parameters:**\n- Length (m)\n- Width (m)\n- Depth/Height (m)\n- Mix ratio (e.g., 1:2:4)\n\nFor a standard slab of **100m² × 0.15m**:\n- Volume = 15m³\n- Cement = 50 bags (1:2:4)\n- Sharp Sand = 1,500 kg\n- Granite = 2,800 kg\n\nWhat are your specific dimensions?',
-    'Create rate analysis for plastering':
-      '**Rate Analysis: 12mm Thick Plaster (1:4)**\n\nPer m² of wall surface:\n\n| Item | Quantity | Rate (₦) | Amount (₦) |\n|------|----------|-----------|------------|\n| Cement | 0.12 bags | 5,200 | 624 |\n| Sharp Sand | 0.02 tons | 3,800 | 76 |\n| Labour | 1 m² | 1,200 | 1,200 |\n| Water/Misc | 1 LS | 100 | 100 |\n| **Total** | | | **2,000** |\n\nAdd 10% profit + 5% VAT for contract rate.',
-  };
-
-  await new Promise((r) => setTimeout(r, 1500 + Math.random() * 1000));
-  return (
-    responses[userMessage] ||
-    "I'll look into that for you. Could you provide more specific details about what you need? For example, the type of building, location, or scope of work."
-  );
-};
 
 function TypingIndicator() {
   return (
@@ -203,10 +166,8 @@ function ConversationItem({
 }
 
 export default function AiAssistant() {
-  const [conversations] = useState<Conversation[]>(mockConversations);
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(
-    conversations[0]?.id ?? null
-  );
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([welcomeMessage]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -219,28 +180,54 @@ export default function AiAssistant() {
   const sendMessage = async (content: string) => {
     if (!content.trim() || isLoading) return;
 
+    const now = new Date();
     const userMessage: Message = {
       id: `user-${Date.now()}`,
       role: 'user',
       content: content.trim(),
-      timestamp: new Date(),
+      timestamp: now,
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
-    const response = await mockAiResponse(content.trim());
+    setConversations((prev) => {
+      if (activeConversationId) {
+        return prev.map((c) =>
+          c.id === activeConversationId ? { ...c, updatedAt: now } : c
+        );
+      }
+
+      const newConversation: Conversation = {
+        id: `conv-${Date.now()}`,
+        title: content.trim().slice(0, 60),
+        updatedAt: now,
+        messages: [userMessage],
+      };
+      setActiveConversationId(newConversation.id);
+      return [...prev, newConversation];
+    });
+
+    await new Promise((r) => setTimeout(r, 1500));
 
     const assistantMessage: Message = {
       id: `assistant-${Date.now()}`,
       role: 'assistant',
-      content: response,
+      content: AI_RESPONSE_PLACEHOLDER,
       timestamp: new Date(),
     };
 
     setIsLoading(false);
     setMessages((prev) => [...prev, assistantMessage]);
+
+    setConversations((prev) =>
+      prev.map((c) =>
+        c.id === activeConversationId
+          ? { ...c, messages: [...c.messages, userMessage, assistantMessage], updatedAt: new Date() }
+          : c
+      )
+    );
   };
 
   const handleSend = () => {
@@ -255,7 +242,7 @@ export default function AiAssistant() {
   };
 
   const handleSuggestion = (suggestion: string) => {
-    sendMessage(suggestion);
+    setInput(suggestion);
   };
 
   const handleMicrophone = () => {
@@ -263,6 +250,8 @@ export default function AiAssistant() {
       icon: <Mic size={16} />,
     });
   };
+
+  const activeConversation = conversations.find((c) => c.id === activeConversationId);
 
   return (
     <div className="flex" style={{ height: 'calc(100vh - var(--sys-top-bar-height, 64px))' }}>
@@ -309,7 +298,7 @@ export default function AiAssistant() {
                 isActive={conv.id === activeConversationId}
                 onClick={() => {
                   setActiveConversationId(conv.id);
-                  setMessages([welcomeMessage]);
+                  setMessages([welcomeMessage, ...conv.messages]);
                 }}
               />
             ))}

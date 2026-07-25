@@ -26,7 +26,8 @@ export default function Login() {
     setLoading(true);
 
     setTimeout(() => {
-      login({ id: '1', name: 'Chidi Okonkwo', email, role: 'quantity_surveyor' }, 'mock_jwt_token');
+      const name = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      login({ id: crypto.randomUUID(), name, email, role: 'quantity_surveyor' }, crypto.randomUUID());
       setLoading(false);
       toast.success('Welcome back!');
       navigate('/dashboard');

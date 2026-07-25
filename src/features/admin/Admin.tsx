@@ -24,6 +24,7 @@ import {
   Download,
   Search,
   Ban,
+  UserPlus,
 } from 'lucide-react';
 
 interface MockUser {
@@ -35,56 +36,13 @@ interface MockUser {
   joined: string;
 }
 
-const mockUsers: MockUser[] = [
-  {
-    id: 'u1',
-    name: 'John Doe',
-    email: 'john@buildright.com',
-    role: 'quantity_surveyor',
-    status: 'active',
-    joined: '12 Jan 2026',
-  },
-  {
-    id: 'u2',
-    name: 'Sarah Adeyemi',
-    email: 'sarah@buildright.com',
-    role: 'project_manager',
-    status: 'active',
-    joined: '03 Mar 2026',
-  },
-  {
-    id: 'u3',
-    name: 'Chidi Okonkwo',
-    email: 'chidi@greenfield.com',
-    role: 'engineer',
-    status: 'active',
-    joined: '22 Apr 2026',
-  },
-  {
-    id: 'u4',
-    name: 'Funmi Ogunlade',
-    email: 'funmi@archplus.com',
-    role: 'architect',
-    status: 'active',
-    joined: '10 Feb 2026',
-  },
-  {
-    id: 'u5',
-    name: 'Musa Bello',
-    email: 'musa@kanoconstruct.com',
-    role: 'contractor',
-    status: 'suspended',
-    joined: '05 Jan 2026',
-  },
-  {
-    id: 'u6',
-    name: 'Adaobi Nwosu',
-    email: 'adaobi@buildright.com',
-    role: 'admin',
-    status: 'active',
-    joined: '01 Dec 2025',
-  },
-];
+interface AuditLog {
+  id: string;
+  timestamp: string;
+  user: string;
+  action: string;
+  details: string;
+}
 
 const roleOptions = [
   { value: 'quantity_surveyor', label: 'Quantity Surveyor' },
@@ -95,57 +53,18 @@ const roleOptions = [
   { value: 'admin', label: 'Admin' },
 ];
 
-const auditLogs = [
-  {
-    id: 'a1',
-    timestamp: '16 Jun 2026, 14:32',
-    user: 'John Doe',
-    action: 'User Login',
-    details: 'john@buildright.com',
-  },
-  {
-    id: 'a2',
-    timestamp: '16 Jun 2026, 13:15',
-    user: 'Sarah Adeyemi',
-    action: 'BOQ Generated',
-    details: 'Luxury Villa BOQ',
-  },
-  {
-    id: 'a3',
-    timestamp: '16 Jun 2026, 11:40',
-    user: 'Chidi Okonkwo',
-    action: 'Project Created',
-    details: 'Greenfield Estate',
-  },
-  {
-    id: 'a4',
-    timestamp: '15 Jun 2026, 16:50',
-    user: 'Funmi Ogunlade',
-    action: 'Template Updated',
-    details: 'Residential Template',
-  },
-  {
-    id: 'a5',
-    timestamp: '15 Jun 2026, 10:22',
-    user: 'Musa Bello',
-    action: 'Rate Modified',
-    details: 'Cement rate updated',
-  },
-  {
-    id: 'a6',
-    timestamp: '14 Jun 2026, 09:00',
-    user: 'Admin',
-    action: 'User Suspended',
-    details: 'musa@kanoconstruct.com',
-  },
-];
-
-export function Admin() {
+export default function Admin() {
   const user = useAuthStore((s) => s.user);
   const { projects } = useProjectStore();
+  const [users, setUsers] = useState<MockUser[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [allowRegistrations, setAllowRegistrations] = useState(true);
+
+  const [inviteName, setInviteName] = useState('');
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState('quantity_surveyor');
 
   if (user?.role !== 'admin') {
     return (
@@ -159,30 +78,83 @@ export function Admin() {
     );
   }
 
-  const filteredUsers = mockUsers.filter((u) => {
+  const filteredUsers = users.filter((u) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     return u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
   });
 
   const stats = [
-    { key: 'users', label: 'Total Users', value: mockUsers.length, icon: Users },
+    { key: 'users', label: 'Total Users', value: users.length, icon: Users },
     {
       key: 'projects',
       label: 'Active Projects',
       value: projects.filter((p) => p.status !== 'archived').length,
       icon: FolderKanban,
     },
-    { key: 'boqs', label: 'Total BOQs Generated', value: projects.length, icon: FileText },
-    { key: 'storage', label: 'Storage Used', value: '2.4 GB', icon: HardDrive },
+    { key: 'boqs', label: 'Total BOQs Generated', value: 0, icon: FileText },
+    { key: 'storage', label: 'Storage Used', value: '0 GB', icon: HardDrive },
   ];
 
   const handleSuspend = (userId: string) => {
-    toast.success(`User ${userId} has been suspended`);
+    setUsers((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, status: 'suspended' as const } : u))
+    );
+    toast.success(`User has been suspended`);
   };
 
-  const handleRoleChange = () => {
+  const handleReinstate = (userId: string) => {
+    setUsers((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, status: 'active' as const } : u))
+    );
+    toast.success('User reinstated');
+  };
+
+  const handleRoleChange = (userId: string, newRole: string) => {
+    setUsers((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
+    );
     toast.success('User role updated');
+  };
+
+  const handleInviteUser = () => {
+    if (!inviteName.trim() || !inviteEmail.trim()) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+    const newUser: MockUser = {
+      id: crypto.randomUUID(),
+      name: inviteName.trim(),
+      email: inviteEmail.trim(),
+      role: inviteRole,
+      status: 'active',
+      joined: new Date().toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }),
+    };
+    setUsers((prev) => [...prev, newUser]);
+    setAuditLogs((prev) => [
+      {
+        id: crypto.randomUUID(),
+        timestamp: new Date().toLocaleString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+        user: user?.name ?? 'Admin',
+        action: 'User Invited',
+        details: inviteEmail.trim(),
+      },
+      ...prev,
+    ]);
+    setInviteName('');
+    setInviteEmail('');
+    setInviteRole('quantity_surveyor');
+    toast.success('User invited successfully');
   };
 
   return (
@@ -242,72 +214,134 @@ export function Admin() {
             />
           </div>
         </CardHeader>
-        <CardContent className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-[var(--sys-outline)]">
-                <th className="text-left py-3 px-2 font-medium text-[var(--sys-on-surface-variant)]">
-                  Name
-                </th>
-                <th className="text-left py-3 px-2 font-medium text-[var(--sys-on-surface-variant)]">
-                  Email
-                </th>
-                <th className="text-left py-3 px-2 font-medium text-[var(--sys-on-surface-variant)]">
-                  Role
-                </th>
-                <th className="text-left py-3 px-2 font-medium text-[var(--sys-on-surface-variant)]">
-                  Status
-                </th>
-                <th className="text-left py-3 px-2 font-medium text-[var(--sys-on-surface-variant)] hidden md:table-cell">
-                  Joined
-                </th>
-                <th className="text-right py-3 px-2 font-medium text-[var(--sys-on-surface-variant)]">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((u) => (
-                <tr
-                  key={u.id}
-                  className="border-b border-[var(--sys-outline)]/50 hover:bg-[var(--sys-surface-container)]/50 transition-colors"
-                >
-                  <td className="py-3 px-2 font-medium text-[var(--sys-on-surface)]">{u.name}</td>
-                  <td className="py-3 px-2 text-[var(--sys-on-surface-variant)]">{u.email}</td>
-                  <td className="py-3 px-2">
-                    <Select
-                      value={u.role}
-                      onChange={handleRoleChange}
-                      options={roleOptions}
-                      className="w-44"
-                    />
-                  </td>
-                  <td className="py-3 px-2">
-                    <Badge variant={u.status === 'active' ? 'success' : 'error'}>{u.status}</Badge>
-                  </td>
-                  <td className="py-3 px-2 text-[var(--sys-on-surface-variant)] hidden md:table-cell">
-                    {u.joined}
-                  </td>
-                  <td className="py-3 px-2 text-right">
-                    {u.status === 'active' ? (
-                      <Button variant="destructive" size="sm" onClick={() => handleSuspend(u.id)}>
-                        <Ban className="size-3.5" />
-                        Suspend
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => toast.success('User reinstated')}
-                      >
-                        Reinstate
-                      </Button>
-                    )}
-                  </td>
+        <CardContent className="space-y-4">
+          <div className="flex flex-col sm:flex-row gap-3 items-end">
+            <div className="flex-1">
+              <label className="text-xs font-medium text-[var(--sys-on-surface-variant)] mb-1 block">
+                Name
+              </label>
+              <input
+                className="flex h-9 w-full rounded-[var(--sys-corner-sm)] border border-[var(--sys-outline)] bg-[var(--sys-surface)] px-3 py-2 text-sm text-[var(--sys-on-surface)] placeholder:text-[var(--sys-on-surface-variant)]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sys-primary)]/50 transition-colors"
+                placeholder="Full name"
+                value={inviteName}
+                onChange={(e) => setInviteName(e.target.value)}
+              />
+            </div>
+            <div className="flex-1">
+              <label className="text-xs font-medium text-[var(--sys-on-surface-variant)] mb-1 block">
+                Email
+              </label>
+              <input
+                className="flex h-9 w-full rounded-[var(--sys-corner-sm)] border border-[var(--sys-outline)] bg-[var(--sys-surface)] px-3 py-2 text-sm text-[var(--sys-on-surface)] placeholder:text-[var(--sys-on-surface-variant)]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sys-primary)]/50 transition-colors"
+                placeholder="user@example.com"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+              />
+            </div>
+            <div className="flex-1">
+              <label className="text-xs font-medium text-[var(--sys-on-surface-variant)] mb-1 block">
+                Role
+              </label>
+              <Select
+                value={inviteRole}
+                onChange={(e) => setInviteRole(e.target.value)}
+                options={roleOptions}
+                className="w-full"
+              />
+            </div>
+            <Button onClick={handleInviteUser}>
+              <UserPlus className="size-4" />
+              Invite
+            </Button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-[var(--sys-outline)]">
+                  <th className="text-left py-3 px-2 font-medium text-[var(--sys-on-surface-variant)]">
+                    Name
+                  </th>
+                  <th className="text-left py-3 px-2 font-medium text-[var(--sys-on-surface-variant)]">
+                    Email
+                  </th>
+                  <th className="text-left py-3 px-2 font-medium text-[var(--sys-on-surface-variant)]">
+                    Role
+                  </th>
+                  <th className="text-left py-3 px-2 font-medium text-[var(--sys-on-surface-variant)]">
+                    Status
+                  </th>
+                  <th className="text-left py-3 px-2 font-medium text-[var(--sys-on-surface-variant)] hidden md:table-cell">
+                    Joined
+                  </th>
+                  <th className="text-right py-3 px-2 font-medium text-[var(--sys-on-surface-variant)]">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan={6}>
+                      <EmptyState
+                        icon={<Users className="size-10" />}
+                        title="No users registered yet"
+                        description="Invite users to get started."
+                      />
+                    </td>
+                  </tr>
+                ) : (
+                  filteredUsers.map((u) => (
+                    <tr
+                      key={u.id}
+                      className="border-b border-[var(--sys-outline)]/50 hover:bg-[var(--sys-surface-container)]/50 transition-colors"
+                    >
+                      <td className="py-3 px-2 font-medium text-[var(--sys-on-surface)]">
+                        {u.name}
+                      </td>
+                      <td className="py-3 px-2 text-[var(--sys-on-surface-variant)]">{u.email}</td>
+                      <td className="py-3 px-2">
+                        <Select
+                          value={u.role}
+                          onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                          options={roleOptions}
+                          className="w-44"
+                        />
+                      </td>
+                      <td className="py-3 px-2">
+                        <Badge variant={u.status === 'active' ? 'success' : 'error'}>
+                          {u.status}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-2 text-[var(--sys-on-surface-variant)] hidden md:table-cell">
+                        {u.joined}
+                      </td>
+                      <td className="py-3 px-2 text-right">
+                        {u.status === 'active' ? (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleSuspend(u.id)}
+                          >
+                            <Ban className="size-3.5" />
+                            Suspend
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleReinstate(u.id)}
+                          >
+                            Reinstate
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </CardContent>
       </Card>
 
@@ -420,21 +454,33 @@ export function Admin() {
               </tr>
             </thead>
             <tbody>
-              {auditLogs.map((log) => (
-                <tr
-                  key={log.id}
-                  className="border-b border-[var(--sys-outline)]/50 hover:bg-[var(--sys-surface-container)]/50 transition-colors"
-                >
-                  <td className="py-3 px-2 text-[var(--sys-on-surface)]">{log.timestamp}</td>
-                  <td className="py-3 px-2 font-medium text-[var(--sys-on-surface)]">{log.user}</td>
-                  <td className="py-3 px-2">
-                    <Badge variant="info">{log.action}</Badge>
-                  </td>
-                  <td className="py-3 px-2 text-[var(--sys-on-surface-variant)] hidden md:table-cell">
-                    {log.details}
+              {auditLogs.length === 0 ? (
+                <tr>
+                  <td colSpan={4}>
+                    <EmptyState
+                      icon={<FileText className="size-10" />}
+                      title="No audit activity yet"
+                      description="Audit events will appear here as users perform actions."
+                    />
                   </td>
                 </tr>
-              ))}
+              ) : (
+                auditLogs.map((log) => (
+                  <tr
+                    key={log.id}
+                    className="border-b border-[var(--sys-outline)]/50 hover:bg-[var(--sys-surface-container)]/50 transition-colors"
+                  >
+                    <td className="py-3 px-2 text-[var(--sys-on-surface)]">{log.timestamp}</td>
+                    <td className="py-3 px-2 font-medium text-[var(--sys-on-surface)]">{log.user}</td>
+                    <td className="py-3 px-2">
+                      <Badge variant="info">{log.action}</Badge>
+                    </td>
+                    <td className="py-3 px-2 text-[var(--sys-on-surface-variant)] hidden md:table-cell">
+                      {log.details}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </CardContent>
