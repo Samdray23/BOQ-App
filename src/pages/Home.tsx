@@ -18,7 +18,7 @@ export default function Home() {
         >
           <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight leading-none">
             Turn architectural drawings into{' '}
-            <span className="bg-gradient-to-r from-[var(--sys-primary)] via-[var(--sys-tertiary-color)] to-[var(--sys-secondary-color)] bg-clip-text text-transparent">
+            <span className="text-[var(--sys-primary)]">
               BOQs in minutes
             </span>
           </h1>
